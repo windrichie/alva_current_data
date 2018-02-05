@@ -1,6 +1,8 @@
 from firebase.firebase import FirebaseApplication, FirebaseAuthentication
 # import ijson
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import time
 from datetime import datetime
