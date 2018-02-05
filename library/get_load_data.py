@@ -53,7 +53,8 @@ def process_data(result):
         #real_timestamp = datetime.strftime(real_timestamp,'%Y-%m-%d %H:%M:%S')
         if (real_timestamp.year > 2017):
             format_timestamp = datetime.strftime(real_timestamp, '%Y-%m-%d %H:%M:%S')
-            raw_data.append(format_timestamp)
+            real_timestamp = datetime.strptime(format_timestamp, '%Y-%m-%d %H:%M:%S')
+            raw_data.append(real_timestamp)
             if 'Grid' in result[f]:
                 raw_data.append(result[f]['Grid'])
             else:
@@ -93,7 +94,8 @@ def plot_data(data):
     img = io.BytesIO()
     # status = status.cumsum()
     status.plot()
-    # plt.figure(); ax; plt.legend(loc='best')
+    plt.legend(loc='best')
+    plt.tight_layout()
     # plt.show()
     plt.savefig(img, format='png')
     img.seek(0)
