@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Alva Energi - Graph Image</title>
+  </head>
+  <body>
+    <h2>Graph for {{ station_name }}</h2>
+    <img src="{{ image_url }}" height="350">
+    <h2>Last 5 measurement data:</h2>
+    <h4>&nbsp &nbsp Timestamp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp Grid &nbsp Inverter &nbsp Load &nbsp Rpi,Ard,Sensors &nbsp &nbsp Tablet1 &nbsp &nbsp Tablet2</h4>
+    {% for row in tail_data.keys() %}
+        <li>{{tail_data[row]['timestamp']}} &nbsp {{tail_data[row]['Grid']}} &nbsp &nbsp {{tail_data[row]['Inverter']}} &nbsp &nbsp {{tail_data[row]['Load']}} &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp{{tail_data[row]['Rpi_Ard_sensors']}} &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp {{tail_data[row]['Tablet1']}} &nbsp &nbsp &nbsp {{tail_data[row]['Tablet2']}}</li>
+    {% endfor %}
+
+  </body>
+</html>
