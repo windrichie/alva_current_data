@@ -14,17 +14,36 @@ import base64
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def main():
-    result = fetch_data()
-    data = process_data(result)
-    image_url, tail_data = plot_data(data)
-    max_index = max(tail_data, key=int)
-    indexes = {max_index, max_index-1, max_index-2, max_index-3, max_index-4}
-    cut_data = dict([(key, tail_data[key]) for key in indexes if key in tail_data])
-    print(cut_data)
-    return render_template('graph/data_layout.html', station_name="Monas Smart Station", image_url=image_url, tail_data=cut_data)
-    # time.sleep(5)
+    if request.method == 'POST':
+        load_choice = request.form['load_choice']
+        station_name = request.form['station_name']
+
+        result = fetch_data()  #fetch from Firebasse
+        data, columns = organize_data(result)
+        # load_choice = ['Grid','Tablet1']
+        data_slice, tail_data = process_data(data, columns, load_choice=load_choice)
+        image_url = plot_data(data_slice)  # get graph image url to display
+
+        # cut the tail_data into last 5 measurements
+        max_index = max(tail_data, key=int)
+        indexes = {max_index, max_index-1, max_index-2, max_index-3, max_index-4}
+        cut_data = dict([(key, tail_data[key]) for key in indexes if key in tail_data])
+        # print(cut_data)
+        return render_template('graph/data_layout.html', station_name=station_name, image_url=image_url, tail_data=cut_data)
+        # time.sleep(5)
+    elif request.method == 'GET':
+        result = fetch_data()  # fetch data from Firebase
+        data, columns = organize_data(result)
+        load_keys = list(columns)
+        i = -1
+        # remove 'timestamp' from the dropdown list
+        for item in load_keys:
+            i += 1
+            if item == 'timestamp':
+                del load_keys[i]
+        return render_template('inheritance/child_template_form.html', loads=load_keys)
 
 
 def fetch_data():
@@ -39,7 +58,7 @@ def fetch_data():
 # print(result)
 
 
-def process_data(result):
+def organize_data(result):
     columns = result.keys()
     # print(columns)
     print("DATA FETCHED")
@@ -52,9 +71,6 @@ def process_data(result):
         real_timestamp = datetime.strptime(raw_time,'%Y-%m-%dT%H:%M:%S.%f') #convert str into datetime object
         #real_timestamp = datetime.strftime(real_timestamp,'%Y-%m-%d %H:%M:%S')
         if (real_timestamp.year > 2017):
-            format_timestamp = datetime.strftime(real_timestamp, '%Y-%m-%d %H:%M:%S')
-            real_timestamp = datetime.strptime(format_timestamp, '%Y-%m-%d %H:%M:%S')
-            raw_data.append(real_timestamp)
             if 'Grid' in result[f]:
                 raw_data.append(result[f]['Grid'])
             else:
@@ -79,19 +95,37 @@ def process_data(result):
                 raw_data.append(result[f]['Tablet2'])
             else:
                 raw_data.append('NaN')(())
+            format_timestamp = datetime.strftime(real_timestamp, '%Y-%m-%d %H:%M:%S')
+            real_timestamp = datetime.strptime(format_timestamp, '%Y-%m-%d %H:%M:%S')
+            raw_data.append(real_timestamp)
             data.append(raw_data)  # create a new dictionary for the data
 
-    return data
+    columns = result[f].keys()
+    return data, columns
 
 
-def plot_data(data):
-    status = pd.DataFrame(data, columns=["timestamp", "Grid", "Inverter", "Load", "Rpi_Ard_sensors", "Tablet1", "Tablet2"])
+def process_data(data, columns, load_choice):
+    status = pd.DataFrame(data, columns=columns)
     tail_dict = status.to_dict('index')
     status = status.set_index('timestamp')
+    print(load_choice)
+    if load_choice == 'all':
+        pass
+    else:
+        print("not all")
+        status = status.loc[:, load_choice]
+    print("current data:", status.tail())
     # print(status['timestamp'].dtype)
     # status = status.loc[:,['Grid','Inverter','Load']]
     status = status.astype(float)
+
+    return status, tail_dict
+
+
+def plot_data(status):
+
     img = io.BytesIO()
+    plt.gcf().clear()
     # status = status.cumsum()
     status.plot()
     plt.legend(loc='best')
@@ -101,4 +135,4 @@ def plot_data(data):
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
     print(plot_url)
-    return 'data:image/png;base64,{}'.format(plot_url), tail_dict
+    return 'data:image/png;base64,{}'.format(plot_url)

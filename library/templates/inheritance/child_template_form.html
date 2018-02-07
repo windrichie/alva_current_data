@@ -3,28 +3,28 @@
 {% block content %}
 <div class="container">
     <div class="row">
-        <h3>My Library - Add new book</h3>
+        <h3>View Alva Energi Current Data Graph</h3>
     </div>
     <div class="row" style="margin-top:20px">
         <div class="col-md-12">
             <form role="form" action="" method="POST">
                 <div class="form-group">
-                    <label for="title">Title</label>
-                    <input class="form-control" name="title" placeholder="Author title">
-                </div>
-                <div class="form-group">
-                    <label for="isbn">ISBN</label>
-                    <input class="form-control" name="isbn" placeholder="ISBN">
-                </div>
-                <div class="form-group">
-                    <label for="author">Author</label>
-                    <select class="form-control" name="author">
-                        <option value="1">Edgar Allan Poe</option>
-                        <option value="2">Mark Twain</option>
-                        <option value="3">Arthur Conan Doyle</option>
+                    <label for="station_name">Station Name</label>
+                    <select class="form-control" name="station_name">
+                        <option value="Monas Smart Station">Monas Smart Station</option>
+                        <option value="Geranting Off-Grid">Geranting Off-Grid</option>
                     </select>
                 </div>
-                <input type="hidden" name="SECRET_KEY" value="rmotr">
+                <div class="form-group">
+                    <label for="load_choice">Choice of load data</label>
+                    <select class="form-control" name="load_choice">
+                        {% for load in loads %}
+                            <option value={{load}}>{{load}}</option>
+                        {% endfor %}
+                            <option value='all'>ALL</option>
+                    </select>
+                </div>
+                <input type="hidden" name="SECRET_KEY" value="alvaenergi">
                 <button type="submit" name='submit' class="btn btn-default" value="Form sent!">Submit</button>
             </form>
         </div>
