@@ -17,11 +17,23 @@ app = Flask(__name__)
 @app.route('/', methods=['POST', 'GET'])
 def main():
     if request.method == 'POST':
-        load_choice = request.form['load_choice']
-        station_name = request.form['station_name']
-
         result = fetch_data()  #fetch from Firebasse
         data, columns = organize_data(result)
+        load_choice = []
+        box = request.form.get('all')
+        if box == '1':
+            load_choice = 'all'
+            # print("checkbox", box)
+        else:
+            for item in columns:
+                # if item != 'timestamp':
+                curr_box = request.form.get(item)
+                if curr_box == '1':
+                    load_choice.append(item)
+
+        # load_choice = request.form['load_choice']
+        station_name = request.form['station_name']
+
         # load_choice = ['Grid','Tablet1']
         data_slice, tail_data = process_data(data, columns, load_choice=load_choice)
         image_url = plot_data(data_slice)  # get graph image url to display
@@ -108,13 +120,10 @@ def process_data(data, columns, load_choice):
     status = pd.DataFrame(data, columns=columns)
     tail_dict = status.to_dict('index')
     status = status.set_index('timestamp')
-    print(load_choice)
     if load_choice == 'all':
         pass
     else:
-        print("not all")
         status = status.loc[:, load_choice]
-    print("current data:", status.tail())
     # print(status['timestamp'].dtype)
     # status = status.loc[:,['Grid','Inverter','Load']]
     status = status.astype(float)
@@ -134,5 +143,5 @@ def plot_data(status):
     plt.savefig(img, format='png')
     img.seek(0)
     plot_url = base64.b64encode(img.getvalue()).decode()
-    print(plot_url)
+    # print(plot_url)
     return 'data:image/png;base64,{}'.format(plot_url)

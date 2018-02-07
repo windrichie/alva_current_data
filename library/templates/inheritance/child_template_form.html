@@ -14,14 +14,19 @@
                         <option value="Monas Smart Station">Monas Smart Station</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="load_choice">Choice of load data</label>
-                    <select class="form-control" name="load_choice">
-                        {% for load in loads %}
-                            <option value={{load}}>{{load}}</option>
-                        {% endfor %}
-                            <option value='all'>ALL</option>
-                    </select>
+                {% for load in loads %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="1" id="defaultCheck1" name={{load}}>
+                    <label class="form-check-label" for={{load}}>
+                            {{load}}
+                    </label>
+                </div>
+                {% endfor %}
+                <div class="form-check">
+                    <label class="form-check-label" for="all">
+                        <input class="form-check-input" type="checkbox" value="1" id="defaultCheck1" name="all">
+                        ALL
+                    </label>
                 </div>
                 <input type="hidden" name="SECRET_KEY" value="alvaenergi">
                 <button type="submit" name='submit' class="btn btn-default" value="Form sent!">Submit</button>
