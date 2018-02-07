@@ -82,42 +82,28 @@ def organize_data(result):
         raw_time = result[f]['timestamp']
         real_timestamp = datetime.strptime(raw_time,'%Y-%m-%dT%H:%M:%S.%f') #convert str into datetime object
         #real_timestamp = datetime.strftime(real_timestamp,'%Y-%m-%d %H:%M:%S')
-        if (real_timestamp.year > 2017):
-            if 'Grid' in result[f]:
-                raw_data.append(result[f]['Grid'])
-            else:
-                raw_data.append('NaN')
-            if 'Inverter' in result[f]:
-                raw_data.append(result[f]['Inverter'])
-            else:
-                raw_data.append('NaN')
-            if 'Load' in result[f]:
-                raw_data.append(result[f]['Load'])
-            else:
-                raw_data.append('NaN')
-            if 'Rpi_Ard_sensors' in result[f]:
-                raw_data.append(result[f]['Rpi_Ard_sensors'])
-            else:
-                raw_data.append('NaN')
-            if 'Tablet1' in result[f]:
-                raw_data.append(result[f]['Tablet1'])
-            else:
-                raw_data.append('NaN')
-            if 'Tablet2' in result[f]:
-                raw_data.append(result[f]['Tablet2'])
-            else:
-                raw_data.append('NaN')(())
-            format_timestamp = datetime.strftime(real_timestamp, '%Y-%m-%d %H:%M:%S')
-            real_timestamp = datetime.strptime(format_timestamp, '%Y-%m-%d %H:%M:%S')
-            raw_data.append(real_timestamp)
-            data.append(raw_data)  # create a new dictionary for the data
+        if real_timestamp.year > 2017:
+            keys = list(result[f].keys())
+            for key in keys:
+                if key == 'timestamp':
+                    format_timestamp = datetime.strftime(real_timestamp, '%Y-%m-%d %H:%M:%S')
+                    real_timestamp = datetime.strptime(format_timestamp, '%Y-%m-%d %H:%M:%S')
+                    raw_data.append(real_timestamp)
+                else:
+                    if key in result[f]:
+                        raw_data.append(result[f][key])
+                    else:
+                        raw_data.append('NaN')
 
-    columns = result[f].keys()
-    return data, columns
+            data.append(raw_data)  # create a new dictionary for the data
+    # print(data[0])
+    # columns = result[f].keys()
+    return data, keys
 
 
 def process_data(data, columns, load_choice):
     status = pd.DataFrame(data, columns=columns)
+    print(status.tail())
     tail_dict = status.to_dict('index')
     status = status.set_index('timestamp')
     if load_choice == 'all':
